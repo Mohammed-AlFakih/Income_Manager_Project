@@ -28,10 +28,16 @@ window.title("My First Tkinter App")
 window.geometry("1080x900")
 
 label = Label(window, text="Income Manager", font=("Arial", 14))
-label.grid(row=0, column=0, padx=5, pady=10, sticky=E)
+label.pack()
 
-entry = Entry(window)
-entry.grid(row=0, column=1, padx=5, pady=10)
+input_frame = Frame(window)
+input_frame.pack(pady=10)
+
+label2 = Label(input_frame, text="Enter Amount:", font=("Arial", 11))
+label2.pack(side=LEFT, padx=5)
+
+entry = Entry(input_frame)
+entry.pack(side=LEFT, padx=1)
 
 # Label(window, text="Last Name:")
 # entry2 = Entry(window)
@@ -41,10 +47,10 @@ entry.grid(row=0, column=1, padx=5, pady=10)
 # entry3 = Entry(window)
 # entry3.pack(side=LEFT, pady=30, padx=50)
 
-# button = Button(window, text="Click Me", command=on_click)
-# button.pack()
+button = Button(input_frame, text="Submit", command=on_click)
+button.pack(side=LEFT, padx=5)
 
-# result_label = Label(window, text="", font=("Arial", 12), fg="red")
-# result_label.pack(pady=10)
+result_label = Label(window, text="", font=("Arial", 12), fg="red")
+result_label.pack()
 
 window.mainloop()
