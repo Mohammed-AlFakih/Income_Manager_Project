@@ -1,48 +1,46 @@
 from tkinter import *
 
 def calculate(distribution):
-        return distribution / 100
+    return distribution / 100
 
 def check_value(value):
-    
     if is_number(value):
         value = float(value)
-        if value < 0 or value > 100:
-            return False
-        else:
-            return True
-    else:
+        return 0 <= value <= 100
+    return False
+
+def check_distribution(personal, needs, investment):
+
+    distribution = personal + needs + investment
+
+    if distribution != 100:
+        result_label.config(text="Distribution total must be %100")
         return False
+    else:
+        return True
 
 def percentage(personal, needs, investment, value):
-
-    if check_value(personal) and check_value(needs) and check_value(investment) and is_number(value):
-        personal_amount = calculate(float(personal)) * value
-        needs_amount = calculate(float(needs)) * value
-        investment_amount = calculate(float(investment)) * value
-
-        result_label.config(
-            text=f"Distribution:\n\n"
-                 f"Personal Amount: ${personal_amount:.2f}\n"
-                 f"Needs Amount: ${needs_amount:.2f}\n"
-                 f"Investment Amount: ${investment_amount:.2f}"
-        )
-
-    else:
-        result_label.config(text="Invalid input! Please numbers between 0 and 100.")
-
-
-def on_click():
-    value = amount.get()
     if is_number(value):
-        value = float(value)
-        if check_value(value):
-            result = calculate(float(value))
-            result_label.config(text=f"Result: {result}")
+        if float(value) > 0:
+            if check_value(personal) and check_value(needs) and check_value(investment):
+                if check_distribution(float(personal), float(needs), float(investment)):
+                    value = float(value)
+                    personal_amount = calculate(float(personal)) * value
+                    needs_amount = calculate(float(needs)) * value
+                    investment_amount = calculate(float(investment)) * value
+
+                    result_label.config(
+                        text=f"Distribution:\n\n"
+                            f"Personal Amount: ${personal_amount:.2f}\n"
+                            f"Needs Amount: ${needs_amount:.2f}\n"
+                            f"Investment Amount: ${investment_amount:.2f}"
+                    )
+            else:
+                result_label.config(text="Invalid input! Please enter a valid percentage between 0 and 100.")
         else:
-            result_label.config(text="Negative or too Large Input")
+         result_label.config(text="Invalid input! Please enter a valid ammount")
     else:
-        result_label.config(text="Invalid input! Please enter a number.")
+        result_label.config(text="Invalid input! Please enter a valid ammount")
 
 def is_number(value):
     try:
@@ -52,57 +50,48 @@ def is_number(value):
         return False
 
 window = Tk()
-window.title("My First Tkinter App")
-window.geometry("1080x900")
+window.title("Income Manager")
+window.geometry("500x400")
 
-label = Label(window, text="Income Manager", font=("Arial", 14))
-label.pack()
+Label(window, text="Income Manager", font=("Arial", 14)).pack(pady=10)
 
-#-------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------
+amount_frame = Frame(window)
+amount_frame.pack(pady=5)
+Label(amount_frame, text="Enter Amount $:", font=("Arial", 11)).grid(row=0, column=0, padx=5, pady=5)
+amount = Entry(amount_frame)
+amount.grid(row=0, column=1, padx=5, pady=5)
 
-input_frame = Frame(window)
-input_frame.pack(pady=10)
+#-------------------------------------------------------------------------------------------------
+percent_frame = Frame(window)
+percent_frame.pack(pady=10)
 
-label2 = Label(input_frame, text="Enter Amount $:", font=("Arial", 11))
-label2.pack(side=LEFT, padx=5)
+Label(percent_frame, text="Personal %:").grid(row=0, column=0, sticky="e", padx=5, pady=5)
+entry_personal = Entry(percent_frame, width=5)
+entry_personal.grid(row=0, column=1, padx=5)
 
-amount = Entry(input_frame)
-amount.pack(side=LEFT, padx=1)
+Label(percent_frame, text="Needs %:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
+entry_needs = Entry(percent_frame, width=5)
+entry_needs.grid(row=1, column=1, padx=5)
 
-#-------------------------------------------------------------------------
+Label(percent_frame, text="Investment %:").grid(row=2, column=0, sticky="e", padx=5, pady=5)
+entry_investment = Entry(percent_frame, width=5)
+entry_investment.grid(row=2, column=1, padx=5)
 
-input_frame2 = Frame(window)
-input_frame2.pack(padx=(1, 1), pady=20)
+#-------------------------------------------------------------------------------------------------
+Button(
+    amount_frame,
+    text="Submit",
+    command=lambda: percentage(
+        entry_personal.get(),
+        entry_needs.get(),
+        entry_investment.get(),
+        amount.get()
+    )
+).grid(row=0, column=2, padx=10)
 
-personal = Label(input_frame2, text="Personal %:")
-personal.pack(side=LEFT, padx=0)
-
-entry2 = Entry(input_frame2, width=3)
-entry2.pack(side=RIGHT, padx=1)
-
-#-------------------------------------------------------------------------
-
-investment = Label(input_frame2, text="Investment %:")
-investment.pack(side=RIGHT, padx=1)
-
-entry3 = Entry(input_frame2, width=3)
-entry3.pack(side=RIGHT, padx=1)
-
-#-------------------------------------------------------------------------
-
-needs = Label(input_frame2, text="Needs %:")
-needs.pack(side=RIGHT, padx=1)
-
-entry4 = Entry(input_frame2, width=3)
-entry4.pack(side=RIGHT, padx=1)
-
-#-------------------------------------------------------------------------
-
-result_label = Label(window, text="", font=("Arial", 12), fg="red")
-result_label.pack()
-
-button = Button(input_frame, text="Submit", command=lambda:percentage(entry2.get(), entry3.get(), entry4.get(), amount.get()))
-button.pack(side=LEFT, padx=5)
-
+# Result label
+result_label = Label(window, text="", font=("Arial", 12), fg="red", justify=LEFT)
+result_label.pack(pady=20)
 
 window.mainloop()
