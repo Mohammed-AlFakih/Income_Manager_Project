@@ -145,7 +145,7 @@ def add_entry(personal, needs, investment, amount, filename):
     date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(filename, mode="a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow([f"${amount}", f"${personal}", f"${needs}", f"${investment}", date_now])
+        writer.writerow([amount, personal, needs, investment, date_now])
 
 # FUNCTION : show_history
 # DESCRIPTION :
@@ -220,10 +220,10 @@ def search(date, error_message, results_text):
             for i, row in enumerate(matched_rows, 1):
                 history_text += (
                     f"Entry {i}:\n"
-                    f"  Entry Amount: {row['Entry Amount']}\n"
-                    f"  Personal: {row['Personal']}\n"
-                    f"  Needs: {row['Needs']}\n"
-                    f"  Investments: {row['Investments']}\n"
+                    f"  Entry Amount: ${row['Entry Amount']}\n"
+                    f"  Personal: ${row['Personal']}\n"
+                    f"  Needs: ${row['Needs']}\n"
+                    f"  Investments: ${row['Investments']}\n"
                     f"  Date: {row['Date']}\n\n"
                 )
             results_text.insert(END, history_text)
@@ -290,7 +290,46 @@ def create_logger():
 
     logging.info("Application started")
 
+# FUNCTION : bubble_sort_csv
+# DESCRIPTION :
+# Sorts csv file by date
+# PARAMETERS : 
+# string : the file
+# string : the column in which the csv will be sorted (Date)
+# RETURNS :
+# NONE
+def bubble_sort_csv(file_path, sort_column="Entry Amount"):
+    with open(file_path, mode="r", newline="") as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+        fieldnames = reader.fieldnames
+
+    n = len(rows)
+
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            try:
+                val1 = float(rows[j][sort_column].replace("$", ""))
+            except (ValueError, KeyError):
+                val1 = 0.0
+
+            try:
+                val2 = float(rows[j + 1][sort_column].replace("$", ""))
+            except (ValueError, KeyError):
+                val2 = 0.0
+
+            if val1 < val2:
+                rows[j], rows[j + 1] = rows[j + 1], rows[j]
+
+    with open(file_path, mode="w", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    messagebox.showinfo("CSV Sorted", "History.csv sorted by Entry Amount (highest → lowest).")
+
 create_logger()
+create_csv("history.csv")
 
 window = Tk()
 window.title("Income Manager")
@@ -340,6 +379,9 @@ Button(
     )
 ).grid(row=0, column=2, padx=10)
 
+sort_button = Button(window, text="Sort CSV", command=lambda: bubble_sort_csv("history.csv", sort_column="Entry Amount"))
+sort_button.pack(pady=30)
+
 history_button = Button(window, text="Show History", command=show_history)
 history_button.pack(pady=10)
 
@@ -348,7 +390,5 @@ show_history_button.pack(pady=15)
 
 result_label = Label(window, text="", font=("Arial", 12), fg="red", justify=LEFT)
 result_label.pack(pady=20)
-
-create_csv("history.csv")
 
 window.mainloop()
